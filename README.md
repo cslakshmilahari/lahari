@@ -299,3 +299,206 @@ def main():
 
 if __name__ == "__main__":
     main()
+import random
+import time
+
+# Utility function to display text slowly
+def print_slow(text, delay=0.05):
+    for char in text:
+        print(char, end="", flush=True)
+        time.sleep(delay)
+    print()
+
+# Word bank for the game
+WORD_BANK = [
+    "python", "adventure", "computer", "programming", "artificial", "intelligence",
+    "development", "analysis", "simulation", "keyboard", "monitor", "variable",
+    "function", "iteration", "recursion", "dictionary", "algorithm", "optimization"
+]
+
+# Function to choose a random word
+def choose_word():
+    return random.choice(WORD_BANK)
+
+# Function to display the game state
+def display_game_state(word, guessed_letters):
+    display = "".join([letter if letter in guessed_letters else "_" for letter in word])
+    print("Word: ", display)
+
+# Function to handle the player's guess
+def handle_guess(word, guessed_letters):
+    while True:
+        guess = input("Enter a letter: ").strip().lower()
+        if len(guess) == 1 and guess.isalpha():
+            if guess in guessed_letters:
+                print("You already guessed that letter. Try again.")
+            else:
+                return guess
+        else:
+            print("Invalid input. Please enter a single letter.")
+
+# Function to check if the game is won
+def is_word_guessed(word, guessed_letters):
+    return all(letter in guessed_letters for letter in word)
+
+# Function to display the game's rules
+def display_rules():
+    print("Welcome to 'Guess the Word'!")
+    print("The objective is to guess the hidden word one letter at a time.")
+    print("You have 6 attempts to guess the word before you lose the game.")
+    print("Let's begin!")
+
+# Main game logic
+def play_game():
+    word = choose_word()
+    guessed_letters = set()
+    attempts_left = 6
+
+    print_slow("\nA random word has been chosen. Can you guess it?")
+    print("\nYou have 6 attempts. Good luck!")
+
+    while attempts_left > 0:
+        display_game_state(word, guessed_letters)
+        print(f"Attempts left: {attempts_left}")
+        print(f"Guessed letters: {', '.join(sorted(guessed_letters))}")
+
+        guess = handle_guess(word, guessed_letters)
+        guessed_letters.add(guess)
+
+        if guess in word:
+            print_slow(f"Good job! The letter '{guess}' is in the word.")
+        else:
+            print_slow(f"Sorry, the letter '{guess}' is not in the word.")
+            attempts_left -= 1
+
+        if is_word_guessed(word, guessed_letters):
+            display_game_state(word, guessed_letters)
+            print_slow("\nCongratulations! You've guessed the word correctly and won the game!")
+            return
+
+    print_slow("\nYou've run out of attempts. The word was:")
+    print(f"{word}")
+    print_slow("Better luck next time!")
+
+# Main menu
+
+def main():
+    while True:
+        print("\n=== Guess the Word ===")
+        print("1. Play Game")
+        print("2. Rules")
+        print("3. Exit")
+
+        choice = input("Enter your choice (1, 2, or 3): ").strip()
+
+        if choice == "1":
+            play_game()
+        elif choice == "2":
+            display_rules()
+        elif choice == "3":
+            print("Thank you for playing! Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
+import json
+import os
+
+class Todo:
+    def __init__(self, title, completed=False):
+        self.title = title
+        self.completed = completed
+
+    def __repr__(self):
+        return f"{'[x]' if self.completed else '[ ]'} {self.title}"
+
+class TodoList:
+    def __init__(self):
+        self.tasks = []
+
+    def add_task(self, title):
+        task = Todo(title)
+        self.tasks.append(task)
+        print(f"Added task: {task}")
+
+    def view_tasks(self):
+        if not self.tasks:
+            print("No tasks available.")
+            return
+        for index, task in enumerate(self.tasks, start=1):
+            print(f"{index}. {task}")
+
+    def delete_task(self, index):
+        if 0 <= index < len(self.tasks):
+            removed_task = self.tasks.pop(index)
+            print(f"Deleted task: {removed_task}")
+        else:
+            print("Invalid task number.")
+
+    def complete_task(self, index):
+        if 0 <= index < len(self.tasks):
+            self.tasks[index].completed = True
+            print(f"Completed task: {self.tasks[index]}")
+        else:
+            print("Invalid task number.")
+
+    def save_to_file(self, filename):
+        with open(filename, 'w') as file:
+            json.dump([task.__dict__ for task in self.tasks], file)
+        print(f"Tasks saved to {filename}")
+
+    def load_from_file(self, filename):
+        if os.path.exists(filename):
+            with open(filename, 'r') as file:
+                tasks_data = json.load(file)
+                self.tasks = [Todo(**task) for task in tasks_data]
+            print(f"Tasks loaded from {filename}")
+        else:
+            print(f"{filename} does not exist.")
+
+def display_menu():
+    print("\nTodo List Menu:")
+    print("1. Add Task")
+    print("2. View Tasks")
+    print("3. Delete Task")
+    print("4. Complete Task")
+    print("5. Save Tasks")
+    print("6. Load Tasks")
+    print("7. Exit")
+
+def main():
+    todo_list = TodoList()
+    filename = "tasks.json"
+
+    while True:
+        display_menu()
+        choice = input("Choose an option (1-7): ")
+
+        if choice == '1':
+            title = input("Enter task title: ")
+            todo_list.add_task(title)
+        elif choice == '2':
+            todo_list.view_tasks()
+        elif choice == '3':
+            todo_list.view_tasks()
+            index = int(input("Enter task number to delete: ")) - 1
+            todo_list.delete_task(index)
+        elif choice == '4':
+            todo_list.view_tasks()
+            index = int(input("Enter task number to complete: ")) - 1
+            todo_list.complete_task(index)
+        elif choice == '5':
+            todo_list.save_to_file(filename)
+        elif choice == '6':
+            todo_list.load_from_file(filename)
+        elif choice == '7':
+            print("Exiting the program.")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+
+if __name__ == "__main__":
+    main()
