@@ -148,3 +148,154 @@ def encounter_cave():
         return "safe"
     else:
         print_slow("Deciding the cave is too risky, you
+import random
+import time
+
+def print_slow(text, delay=0.05):
+    for char in text:
+        print(char, end="", flush=True)
+        time.sleep(delay)
+    print()
+
+def create_character():
+    print("Welcome to the RPG Adventure!")
+    name = input("Enter your character's name: ").strip()
+    print_slow(f"Hello, {name}. Let's set up your character.")
+
+    print("Choose your class:")
+    print("1. Warrior - Strong and resilient.")
+    print("2. Mage - Master of the arcane arts.")
+    print("3. Rogue - Quick and cunning.")
+
+    while True:
+        choice = input("Enter the number of your class (1, 2, or 3): ").strip()
+        if choice == "1":
+            character_class = "Warrior"
+            hp = 150
+            attack = 20
+            break
+        elif choice == "2":
+            character_class = "Mage"
+            hp = 100
+            attack = 30
+            break
+        elif choice == "3":
+            character_class = "Rogue"
+            hp = 120
+            attack = 25
+            break
+        else:
+            print("Invalid choice. Please select 1, 2, or 3.")
+
+    print_slow(f"You chose {character_class}. Your adventure begins now!")
+    return {"name": name, "class": character_class, "hp": hp, "attack": attack}
+
+def encounter_enemy():
+    enemies = ["Goblin", "Orc", "Bandit", "Skeleton"]
+    enemy = random.choice(enemies)
+    enemy_hp = random.randint(50, 100)
+    enemy_attack = random.randint(10, 20)
+
+    print_slow(f"A wild {enemy} appears! It has {enemy_hp} HP and {enemy_attack} attack power.")
+    return {"name": enemy, "hp": enemy_hp, "attack": enemy_attack}
+
+def battle(player, enemy):
+    print_slow(f"Battle starts between {player['name']} and {enemy['name']}!")
+
+    while player["hp"] > 0 and enemy["hp"] > 0:
+        print(f"Your HP: {player['hp']} | {enemy['name']} HP: {enemy['hp']}")
+        print("1. Attack")
+        print("2. Defend")
+        print("3. Run")
+
+        choice = input("What will you do? (1, 2, or 3): ").strip()
+
+        if choice == "1":
+            damage = random.randint(player["attack"] - 5, player["attack"] + 5)
+            enemy["hp"] -= damage
+            print_slow(f"You deal {damage} damage to the {enemy['name']}.")
+        elif choice == "2":
+            print_slow("You brace yourself for the enemy's attack.")
+            continue
+        elif choice == "3":
+            if random.random() > 0.5:
+                print_slow("You successfully escaped!")
+                return "escaped"
+            else:
+                print_slow("You failed to escape!")
+        else:
+            print("Invalid choice.")
+            continue
+
+        if enemy["hp"] > 0:
+            enemy_damage = random.randint(enemy["attack"] - 5, enemy["attack"] + 5)
+            player["hp"] -= enemy_damage
+            print_slow(f"The {enemy['name']} deals {enemy_damage} damage to you.")
+
+    if player["hp"] <= 0:
+        print_slow("You have been defeated. Your adventure ends here.")
+        return "defeated"
+    elif enemy["hp"] <= 0:
+        print_slow(f"You defeated the {enemy['name']}! Congratulations!")
+        return "victory"
+
+def explore(player):
+    print_slow("You venture into the unknown...")
+    outcome = random.choice(["treasure", "enemy", "trap"])
+
+    if outcome == "treasure":
+        treasure = random.randint(10, 50)
+        print_slow(f"You find a hidden treasure chest with {treasure} gold coins!")
+        player["gold"] += treasure
+    elif outcome == "enemy":
+        enemy = encounter_enemy()
+        result = battle(player, enemy)
+        if result == "defeated":
+            return "game_over"
+    elif outcome == "trap":
+        damage = random.randint(10, 30)
+        player["hp"] -= damage
+        print_slow(f"You trigger a trap and lose {damage} HP!")
+
+    if player["hp"] <= 0:
+        print_slow("The trap proved too much. Your journey ends here.")
+        return "game_over"
+
+    return "continue"
+
+def main():
+    player = create_character()
+    player["gold"] = 0
+
+    while True:
+        print("\nWhat would you like to do?")
+        print("1. Explore")
+        print("2. Check Stats")
+        print("3. Rest")
+        print("4. Quit")
+
+        choice = input("Enter your choice: ").strip()
+
+        if choice == "1":
+            result = explore(player)
+            if result == "game_over":
+                break
+        elif choice == "2":
+            print("\nCharacter Stats:")
+            print(f"Name: {player['name']}")
+            print(f"Class: {player['class']}")
+            print(f"HP: {player['hp']}")
+            print(f"Attack: {player['attack']}")
+            print(f"Gold: {player['gold']}")
+        elif choice == "3":
+            print_slow("You find a safe place to rest and recover.")
+            player["hp"] += random.randint(10, 30)
+            print_slow(f"Your HP is now {player['hp']}.")
+        elif choice == "4":
+            print_slow("Thank you for playing! Goodbye!")
+            break
+        else:
+            print("Invalid choice.")
+
+if __name__ == "__main__":
+    main()
